@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import mercadopago from 'mercadopago';
 import { redirect } from 'next/navigation';
 import { Team } from '@/lib/db/schema';
 import {
@@ -7,9 +7,8 @@ import {
   getTeamByMercadoPagoCustomerId,
 } from '@/lib/db/queries';
 
-// 1. Inicializa el cliente de MercadoPago
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!,
+mercadopago.configure({
+  access_token: process.env.MP_ACCESS_TOKEN!,
 });
 
 // Crear preferencia de pago
@@ -28,31 +27,25 @@ export async function createCheckoutPreference({
     redirect(`/sign-up?redirect=checkout`);
   }
 
-  // 2. Crea una instancia de la preferencia con el cliente
-  const preference = new Preference(client);
-
-  // 3. Crea la preferencia usando la nueva sintaxis
-  const response = await preference.create({
-    body: {
-      items: [
-        {
-          id: title,
-          title,
-          quantity: 1,
-          unit_price: price,
-        },
-      ],
-      back_urls: {
-        success: `${process.env.BASE_URL}/api/mercadopago/success`,
-        failure: `${process.env.BASE_URL}/pricing`,
-        pending: `${process.env.BASE_URL}/pending`,
+  const preference = {
+    items: [
+      {
+        title,
+        quantity: 1,
+        unit_price: price,
       },
-      auto_return: 'approved',
-      external_reference: user.id.toString(),
+    ],
+    back_urls: {
+      success: `${process.env.BASE_URL}/api/mercadopago/success`,
+      failure: `${process.env.BASE_URL}/pricing`,
+      pending: `${process.env.BASE_URL}/pending`,
     },
-  });
+    auto_return: 'approved',
+    external_reference: user.id.toString(),
+  };
 
-  redirect(response.init_point!);
+  const response = await mercadopago.preferences.create(preference);
+  redirect(response.body.init_point);
 }
 
 // Simular portal de cliente
