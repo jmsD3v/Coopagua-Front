@@ -85,7 +85,7 @@ function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
           <Logo />
-          <span className="text-xl font-semibold">Coop. de Agua</span>
+          <span className="text-xl font-semibold">Cooperativa de Agua Potable Las Breñas</span>
         </Link>
         <div className="flex items-center space-x-4">
           <Suspense fallback={<div className="h-9" />}>
