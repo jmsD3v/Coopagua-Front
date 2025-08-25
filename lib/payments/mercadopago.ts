@@ -7,11 +7,12 @@ import {
   getTeamByMercadoPagoCustomerId,
 } from '@/lib/db/queries';
 
-mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKEN!,
+// 1. Inicializa el cliente de MercadoPago (estilo v2 del SDK)
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
-// Create payment preference
+// Crear preferencia de pago
 export async function createCheckoutPreference({
   team,
   title,
@@ -27,27 +28,32 @@ export async function createCheckoutPreference({
     redirect(`/sign-up?redirect=checkout`);
   }
 
-  const preference = {
-    items: [
-      {
-        title,
-        quantity: 1,
-        unit_price: price,
+  const preference = new Preference(client);
+
+  const response = await preference.create({
+    body: {
+      items: [
+        {
+          id: title,
+          title,
+          quantity: 1,
+          unit_price: price,
+        },
+      ],
+      back_urls: {
+        success: `${process.env.BASE_URL}/api/mercadopago/success`,
+        failure: `${process.env.BASE_URL}/pricing`,
+        pending: `${process.env.BASE_URL}/pending`,
       },
-    ],
-    back_urls: {
-      success: `${process.env.BASE_URL}/api/mercadopago/success`,
-      failure: `${process.env.BASE_URL}/pricing`,
-      pending: `${process.env.BASE_URL}/pending`,
+      auto_return: 'approved',
+      external_reference: user.id.toString(),
     },
-    auto_return: 'approved',
-    external_reference: user.id.toString(),
-  };
+  });
 
   redirect(response.init_point!);
 }
 
-// Simulate customer portal
+// Simular portal de cliente
 export function redirectToCustomerPortal(team: Team) {
   if (!team.mpCustomerId) {
     redirect('/pricing');
@@ -56,7 +62,7 @@ export function redirectToCustomerPortal(team: Team) {
   redirect(`https://www.mercadopago.com.ar/subscriptions`);
 }
 
-// Handle subscription changes (from webhook)
+// Manejar cambios de suscripción (desde webhook)
 export async function handleSubscriptionChange(mpData: any) {
   const customerId = mpData.customer_id;
   const subscriptionId = mpData.id;
