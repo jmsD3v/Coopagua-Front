@@ -36,6 +36,30 @@ export async function getUser() {
   return user[0];
 }
 
+export async function createUser(userData: NewUser) {
+  const newUser = await db.insert(users).values(userData).returning();
+  return newUser[0];
+}
+
+export async function updateUser(id: number, userData: Partial<NewUser>) {
+  const updatedUser = await db
+    .update(users)
+    .set({ ...userData, updatedAt: new Date() })
+    .where(and(eq(users.id, id), isNull(users.deletedAt)))
+    .returning();
+  return updatedUser[0];
+}
+
+export async function deleteUser(id: number) {
+  // We perform a "soft delete" by setting the deletedAt timestamp
+  const deletedUser = await db
+    .update(users)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(users.id, id), isNull(users.deletedAt)))
+    .returning();
+  return deletedUser[0];
+}
+
 export async function getTeamByMercadoPagoCustomerId(customerId: string) {
   const result = await db
     .select()
@@ -126,4 +150,23 @@ export async function getTeamForUser() {
   });
 
   return result?.team || null;
+}
+
+export async function getUsers() {
+  const usersList = await db.select().from(users).where(isNull(users.deletedAt));
+  return usersList;
+}
+
+export async function getUserById(id: number) {
+  const user = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (user.length === 0) {
+    return null;
+  }
+
+  return user[0];
 }

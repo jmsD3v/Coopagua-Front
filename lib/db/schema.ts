@@ -5,18 +5,47 @@ import {
   text,
   timestamp,
   integer,
+  pgEnum,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+
+export const connectionStatusEnum = pgEnum('connection_status', [
+  'activa',
+  'morosa',
+  'suspendida',
+]);
+
+export const userRoleEnum = pgEnum('user_role', [
+  'socio',
+  'admin',
+  'superadmin',
+]);
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
-  role: varchar('role', { length: 20 }).notNull().default('member'),
+  role: userRoleEnum('role').default('socio').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   deletedAt: timestamp('deleted_at'),
+  // New fields for "abonado"
+  phone: varchar('phone', { length: 50 }),
+  membershipNumber: varchar('membership_number', { length: 100 }).unique(),
+  tariffCategory: varchar('tariff_category', { length: 100 }),
+  connectionStatus: connectionStatusEnum('connection_status').default('activa'),
+});
+
+export const addresses = pgTable('addresses', {
+  id: serial('id').primaryKey(),
+  street: varchar('street', { length: 255 }),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 100 }),
+  zip: varchar('zip', { length: 20 }),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
 });
 
 export const teams = pgTable('teams', {
@@ -73,9 +102,17 @@ export const teamsRelations = relations(teams, ({ many }) => ({
   invitations: many(invitations),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
+  addresses: many(addresses), // A user can have multiple addresses
+}));
+
+export const addressesRelations = relations(addresses, ({ one }) => ({
+  user: one(users, {
+    fields: [addresses.userId],
+    references: [users.id],
+  }),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -113,6 +150,8 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Address = typeof addresses.$inferSelect;
+export type NewAddress = typeof addresses.$inferInsert;
 export type Team = typeof teams.$inferSelect;
 export type NewTeam = typeof teams.$inferInsert;
 export type TeamMember = typeof teamMembers.$inferSelect;
