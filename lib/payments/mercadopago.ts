@@ -7,12 +7,12 @@ import {
   getTeamByMercadoPagoCustomerId,
 } from '@/lib/db/queries';
 
-// 1. Inicializa el cliente de MercadoPago (estilo v2 del SDK)
+// 1. Initialize the MercadoPago client
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
-// Crear preferencia de pago
+// Create payment preference
 export async function createCheckoutPreference({
   team,
   title,
@@ -28,8 +28,10 @@ export async function createCheckoutPreference({
     redirect(`/sign-up?redirect=checkout`);
   }
 
+  // 2. Create a preference instance with the client
   const preference = new Preference(client);
 
+  // 3. Create the preference using the new syntax
   const response = await preference.create({
     body: {
       items: [
@@ -53,7 +55,7 @@ export async function createCheckoutPreference({
   redirect(response.init_point!);
 }
 
-// Simular portal de cliente
+// Simulate customer portal
 export function redirectToCustomerPortal(team: Team) {
   if (!team.mpCustomerId) {
     redirect('/pricing');
@@ -62,7 +64,7 @@ export function redirectToCustomerPortal(team: Team) {
   redirect(`https://www.mercadopago.com.ar/subscriptions`);
 }
 
-// Manejar cambios de suscripción (desde webhook)
+// Handle subscription changes (from webhook)
 export async function handleSubscriptionChange(mpData: any) {
   const customerId = mpData.customer_id;
   const subscriptionId = mpData.id;

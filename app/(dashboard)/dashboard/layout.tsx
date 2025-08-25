@@ -22,7 +22,7 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="flex flex-col min-h-[calc(100dvh-68px)] max-w-7xl mx-auto w-full">
+    <div className="flex flex-col min-h-[calc(100dvh-68px)] max-w-7xl mx-auto w-full bg-background">
       {/* Mobile header */}
       <div className="lg:hidden flex items-center justify-between border-b p-4">
         <div className="flex items-center">
@@ -52,7 +52,7 @@ export default function DashboardLayout({
               <Link key={item.href} href={item.href} passHref>
                 <Button
                   variant={pathname === item.href ? 'secondary' : 'ghost'}
-                  className="shadow-none my-1 w-full justify-start"
+                  className="shadow-none my-1 w-full justify-start cursor-pointer"
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <item.icon className="h-4 w-4" />
