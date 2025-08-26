@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getUser, getUsers, createUser } from '@/lib/db/queries';
+import { getAuthenticatedUser, getUsers, createUser } from '@/lib/db/queries';
 import { User, NewUser } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth/session';
 
 export async function GET() {
   try {
-    const currentUser: User | null = await getUser();
+    const currentUser: User | null = await getAuthenticatedUser();
 
     // Protect the route: only admins and superadmins can access
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
@@ -25,7 +25,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const currentUser: User | null = await getUser();
+    const currentUser: User | null = await getAuthenticatedUser();
 
     // Protect the route: only admins and superadmins can access
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
