@@ -1,12 +1,12 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 /*
   ---break---
 */
-@custom-variant dark (&:is(.dark *));
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
-@variant dark (&:is(.dark *));
+/* @custom-variant dark (&:is(.dark *));
+@variant dark (&:is(.dark *)); */
 
 @theme {
   --color-background: hsl(var(--background));
@@ -77,7 +77,7 @@
 
 @layer utilities {
   body {
-    font-family: "Manrope", Arial, Helvetica, sans-serif;
+    font-family: 'Manrope', Arial, Helvetica, sans-serif;
   }
 }
 
@@ -106,25 +106,25 @@
   }
 
   .dark {
-    --background: 145 55% 12%;
-    --foreground: 145 15% 96%;
-    --card: 145 55% 16%;
-    --card-foreground: 145 15% 96%;
-    --popover: 145 55% 8%;
-    --popover-foreground: 145 15% 96%;
-    --primary: 145 60% 45%;
-    --primary-foreground: 145 20% 98%;
-    --secondary: 45 90% 55%;
-    --secondary-foreground: 45 90% 10%;
-    --muted: 145 40% 20%;
-    --muted-foreground: 145 10% 65%;
-    --accent: 45 90% 55%;
-    --accent-foreground: 45 95% 5%;
-    --destructive: 0 70% 45%;
+    --background: 145 30% 15%; /* Verde oscuro profundo */
+    --foreground: 45 90% 85%; /* Amarillo claro para texto principal */
+    --card: 145 25% 18%; /* Verde más claro para tarjetas */
+    --card-foreground: 45 90% 85%;
+    --popover: 145 25% 12%;
+    --popover-foreground: 45 90% 85%;
+    --primary: 145 50% 35%; /* Verde medio para botones */
+    --primary-foreground: 45 90% 95%; /* Texto amarillo claro */
+    --secondary: 45 90% 60%; /* Amarillo cálido */
+    --secondary-foreground: 145 20% 10%; /* Verde muy oscuro para contraste */
+    --muted: 145 20% 25%; /* Verde apagado */
+    --muted-foreground: 45 80% 70%; /* Amarillo suave */
+    --accent: 45 95% 55%; /* Amarillo vibrante */
+    --accent-foreground: 145 20% 10%;
+    --destructive: 0 70% 45%; /* Rojo para acciones destructivas */
     --destructive-foreground: 0 0% 98%;
-    --border: 145 40% 20%;
-    --input: 145 40% 25%;
-    --ring: 145 60% 45%;
+    --border: 145 20% 25%; /* Verde apagado para bordes */
+    --input: 145 20% 30%; /* Verde medio para campos */
+    --ring: 45 90% 55%; /* Amarillo para foco */
   }
 }
 

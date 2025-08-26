@@ -1,13 +1,13 @@
 services:
   postgres:
     image: postgres:16.4-alpine
-    container_name: next_saas_starter_postgres
+    container_name: cooperativa-db # Usando el nombre que tú elegiste
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cooperativa
+      POSTGRES_USER: suadmin # El usuario que definiste
+      POSTGRES_PASSWORD: coope123 # La contraseña que definiste
     ports:
-      - "54322:5432"
+      - "5432:5432" # Mapeando al puerto estándar para simplificar
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
