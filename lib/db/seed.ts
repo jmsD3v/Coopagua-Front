@@ -1,43 +1,6 @@
-import { stripe } from '../payments/mercadopago';
 import { db } from './drizzle';
 import { users, teams, teamMembers } from './schema';
 import { hashPassword } from '@/lib/auth/session';
-
-async function createStripeProducts() {
-  console.log('Creating Stripe products and prices...');
-
-  const baseProduct = await stripe.products.create({
-    name: 'Base',
-    description: 'Base subscription plan',
-  });
-
-  await stripe.prices.create({
-    product: baseProduct.id,
-    unit_amount: 800, // $8 in cents
-    currency: 'usd',
-    recurring: {
-      interval: 'month',
-      trial_period_days: 7,
-    },
-  });
-
-  const plusProduct = await stripe.products.create({
-    name: 'Plus',
-    description: 'Plus subscription plan',
-  });
-
-  await stripe.prices.create({
-    product: plusProduct.id,
-    unit_amount: 1200, // $12 in cents
-    currency: 'usd',
-    recurring: {
-      interval: 'month',
-      trial_period_days: 7,
-    },
-  });
-
-  console.log('Stripe products and prices created successfully.');
-}
 
 async function seed() {
   const email = 'test@test.com';
@@ -50,27 +13,30 @@ async function seed() {
       {
         email: email,
         passwordHash: passwordHash,
-        role: 'owner',
+        role: 'superadmin',
       },
     ])
     .returning();
 
   console.log('Initial user created.');
 
+  // Create a default team for the superadmin to belong to
   const [team] = await db
     .insert(teams)
     .values({
-      name: 'Test Team',
+      name: 'Cooperativa',
     })
     .returning();
 
+  // Note: The teamMembers table still uses a varchar 'role'.
+  // This might need to be updated in the future if team roles are used.
   await db.insert(teamMembers).values({
     teamId: team.id,
     userId: user.id,
-    role: 'owner',
+    role: 'owner', // This 'owner' is for the team, not the app role.
   });
 
-  await createStripeProducts();
+  console.log('Seed process finished.');
 }
 
 seed()

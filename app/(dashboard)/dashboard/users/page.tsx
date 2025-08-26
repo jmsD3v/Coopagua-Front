@@ -46,8 +46,12 @@ export default function UsersPage() {
   if (error) return <div>Failed to load users. You might not have admin privileges.</div>;
   if (isLoading) return <div>Loading...</div>;
 
-  // Defensive check to ensure users is an array
+  // Defensive check to handle API errors or unexpected data types
   if (!Array.isArray(users)) {
+    // Handle cases where the API returns an error object
+    if (users && typeof users === 'object' && 'error' in users) {
+      return <div>Error loading users: {users.error}</div>;
+    }
     return <div>Error: Expected a list of users, but received something else. Please check the console.</div>;
   }
 

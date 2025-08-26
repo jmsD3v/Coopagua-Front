@@ -15,7 +15,7 @@ export async function GET(
   try {
     const currentUser: User | null = await getUser();
 
-    // Protect the route: only admins and superadmins can access
+    // Protect the route
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
