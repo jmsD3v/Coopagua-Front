@@ -1,37 +1,35 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { redirect } from 'next/navigation';
-import { Team } from '@/lib/db/schema';
+import { User } from '@/lib/db/schema';
 import {
-  getUser,
-  updateTeamSubscription,
-  getTeamByMercadoPagoCustomerId,
+  getAuthenticatedUser,
+  updateUserSubscription,
+  getUserByMercadoPagoCustomerId,
 } from '@/lib/db/queries';
 
-// 1. Initialize the MercadoPago client
+// Initialize the MercadoPago client
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
-// Create payment preference
+// Create payment preference for a user
 export async function createCheckoutPreference({
-  team,
+  user,
   title,
   price,
 }: {
-  team: Team | null;
+  user: User | null;
   title: string;
   price: number;
 }) {
-  const user = await getUser();
+  const currentUser = user || (await getAuthenticatedUser());
 
-  if (!team || !user) {
-    redirect(`/sign-up?redirect=checkout`);
+  if (!currentUser) {
+    redirect(`/sign-in?redirect=checkout`);
   }
 
-  // 2. Create a preference instance with the client
   const preference = new Preference(client);
 
-  // 3. Create the preference using the new syntax
   const response = await preference.create({
     body: {
       items: [
@@ -43,50 +41,52 @@ export async function createCheckoutPreference({
         },
       ],
       back_urls: {
-        success: `${process.env.BASE_URL}/api/mercadopago/success`,
+        success: `${process.env.BASE_URL}/dashboard/users`, // Redirect to users dashboard on success
         failure: `${process.env.BASE_URL}/pricing`,
-        pending: `${process.env.BASE_URL}/pending`,
+        pending: `${process.env.BASE_URL}/pricing`,
       },
       auto_return: 'approved',
-      external_reference: user.id.toString(),
+      external_reference: currentUser.id.toString(),
+      payer: {
+        name: currentUser.name ?? undefined,
+        email: currentUser.email,
+      }
     },
   });
 
   redirect(response.init_point!);
 }
 
-// Simulate customer portal
-export function redirectToCustomerPortal(team: Team) {
-  if (!team.mpCustomerId) {
-    redirect('/pricing');
+// Redirect to the user's MercadoPago subscriptions page
+export function redirectToCustomerPortal(user: User) {
+  if (!user.mpCustomerId) {
+    // Maybe redirect to a page explaining they have no subscription
+    redirect('/dashboard/users');
   }
-
+  // This is a generic link, a better solution would store the specific subscription link
   redirect(`https://www.mercadopago.com.ar/subscriptions`);
 }
 
-// Handle subscription changes (from webhook)
+// Handle subscription changes from a webhook
 export async function handleSubscriptionChange(mpData: any) {
   const customerId = mpData.customer_id;
   const subscriptionId = mpData.id;
   const status = mpData.status;
 
-  const team = await getTeamByMercadoPagoCustomerId(customerId);
-  if (!team) {
-    console.error('Team not found for MercadoPago customer:', customerId);
+  const user = await getUserByMercadoPagoCustomerId(customerId);
+  if (!user) {
+    console.error('User not found for MercadoPago customer:', customerId);
     return;
   }
 
   if (status === 'authorized' || status === 'active') {
-    await updateTeamSubscription(team.id, {
+    await updateUserSubscription(user.id, {
       mpSubscriptionId: subscriptionId,
-      planName: mpData.reason,
-      subscriptionStatus: status,
+      mpCustomerId: customerId,
     });
   } else if (status === 'cancelled' || status === 'paused') {
-    await updateTeamSubscription(team.id, {
+    await updateUserSubscription(user.id, {
       mpSubscriptionId: null,
-      planName: null,
-      subscriptionStatus: status,
     });
   }
 }

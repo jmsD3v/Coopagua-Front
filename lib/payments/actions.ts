@@ -1,18 +1,18 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import {
   createCheckoutPreference,
   redirectToCustomerPortal,
 } from './mercadopago';
-import { withTeam } from '@/lib/auth/middleware';
+import { withUser } from '@/lib/auth/middleware';
+import { getAuthenticatedUser } from '@/lib/db/queries';
 
-export const checkoutAction = withTeam(async (formData, team) => {
+export const checkoutAction = withUser(async (formData, user) => {
   const title = formData.get('title') as string;
   const price = Number(formData.get('price'));
-  await createCheckoutPreference({ team, title, price });
+  await createCheckoutPreference({ user, title, price });
 });
 
-export const customerPortalAction = withTeam(async (_, team) => {
-  redirectToCustomerPortal(team);
+export const customerPortalAction = withUser(async (_, user) => {
+  redirectToCustomerPortal(user);
 });

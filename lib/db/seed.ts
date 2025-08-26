@@ -1,42 +1,41 @@
 import { db } from './drizzle';
-import { users, teams, teamMembers } from './schema';
+import { users } from './schema';
 import { hashPassword } from '@/lib/auth/session';
 
 async function seed() {
+  console.log('Seeding database...');
+
+  // 1. Check if the superadmin user already exists
+  const existingUser = await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.email, 'test@test.com'),
+  });
+
+  if (existingUser) {
+    console.log('Superadmin user (test@test.com) already exists. Seeding not required.');
+    return;
+  }
+
+  // 2. If not, create the superadmin user
   const email = 'test@test.com';
   const password = 'admin123';
   const passwordHash = await hashPassword(password);
 
-  const [user] = await db
+  await db
     .insert(users)
     .values([
       {
+        name: 'Super Admin',
         email: email,
         passwordHash: passwordHash,
         role: 'superadmin',
+        membershipNumber: '00001',
+        tariffCategory: 'Admin',
+        connectionStatus: 'activa',
       },
     ])
     .returning();
 
-  console.log('Initial user created.');
-
-  // Create a default team for the superadmin to belong to
-  const [team] = await db
-    .insert(teams)
-    .values({
-      name: 'Cooperativa',
-    })
-    .returning();
-
-  // Note: The teamMembers table still uses a varchar 'role'.
-  // This might need to be updated in the future if team roles are used.
-  await db.insert(teamMembers).values({
-    teamId: team.id,
-    userId: user.id,
-    role: 'owner', // This 'owner' is for the team, not the app role.
-  });
-
-  console.log('Seed process finished.');
+  console.log('Initial superadmin user created successfully.');
 }
 
 seed()
