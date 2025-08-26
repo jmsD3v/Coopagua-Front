@@ -1,166 +1,128 @@
 'use client';
 
+import { useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Lock, Trash2, Loader2 } from 'lucide-react';
-import { useActionState } from 'react';
-import { updatePassword, deleteAccount } from '@/app/(login)/actions';
+import { Loader2 } from 'lucide-react';
+import { updateMyPassword, deleteMyAccount } from './actions';
 
-type PasswordState = {
-  currentPassword?: string;
-  newPassword?: string;
-  confirmPassword?: string;
-  error?: string;
-  success?: string;
-};
-
-type DeleteState = {
-  password?: string;
+type ActionState = {
   error?: string;
   success?: string;
 };
 
 export default function SecurityPage() {
-  const [passwordState, passwordAction, isPasswordPending] = useActionState<
-    PasswordState,
-    FormData
-  >(updatePassword, {});
+  const [passwordState, passwordFormAction, isPasswordPending] =
+    useActionState<ActionState, FormData>(updateMyPassword, {});
 
-  const [deleteState, deleteAction, isDeletePending] = useActionState<
-    DeleteState,
-    FormData
-  >(deleteAccount, {});
+  const [deleteState, deleteFormAction, isDeletePending] =
+    useActionState<ActionState, FormData>(deleteMyAccount, {});
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium bold text-gray-900 mb-6">
-        Security Settings
-      </h1>
-      <Card className="mb-8">
+    <section className="flex-1 p-4 lg:p-8 space-y-6">
+      <Card>
         <CardHeader>
-          <CardTitle>Password</CardTitle>
+          <CardTitle>Cambiar Contraseña</CardTitle>
+          <CardDescription>
+            Asegúrate de usar una contraseña larga y segura.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form className="space-y-4" action={passwordAction}>
+        <form action={passwordFormAction}>
+          <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="current-password" className="mb-2">
-                Current Password
-              </Label>
+              <Label htmlFor="currentPassword">Contraseña Actual</Label>
               <Input
-                id="current-password"
+                id="currentPassword"
                 name="currentPassword"
                 type="password"
-                autoComplete="current-password"
                 required
-                minLength={8}
-                maxLength={100}
-                defaultValue={passwordState.currentPassword}
               />
             </div>
             <div>
-              <Label htmlFor="new-password" className="mb-2">
-                New Password
-              </Label>
+              <Label htmlFor="newPassword">Nueva Contraseña</Label>
               <Input
-                id="new-password"
+                id="newPassword"
                 name="newPassword"
                 type="password"
-                autoComplete="new-password"
                 required
-                minLength={8}
-                maxLength={100}
-                defaultValue={passwordState.newPassword}
               />
             </div>
             <div>
-              <Label htmlFor="confirm-password" className="mb-2">
-                Confirm New Password
-              </Label>
+              <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
               <Input
-                id="confirm-password"
+                id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 required
-                minLength={8}
-                maxLength={100}
-                defaultValue={passwordState.confirmPassword}
               />
             </div>
+          </CardContent>
+          <CardFooter className="border-t pt-6 flex flex-col items-start">
             {passwordState.error && (
-              <p className="text-red-500 text-sm">{passwordState.error}</p>
+              <p className="text-destructive text-sm mb-4">{passwordState.error}</p>
             )}
             {passwordState.success && (
-              <p className="text-green-500 text-sm">{passwordState.success}</p>
+              <p className="text-green-500 text-sm mb-4">{passwordState.success}</p>
             )}
-            <Button
-              type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              disabled={isPasswordPending}
-            >
+            <Button type="submit" disabled={isPasswordPending}>
               {isPasswordPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
+                  Guardando...
                 </>
               ) : (
-                <>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Update Password
-                </>
+                'Actualizar Contraseña'
               )}
             </Button>
-          </form>
-        </CardContent>
+          </CardFooter>
+        </form>
       </Card>
 
-      <Card>
+      <Card className="border-destructive">
         <CardHeader>
-          <CardTitle>Delete Account</CardTitle>
+          <CardTitle>Eliminar Cuenta</CardTitle>
+          <CardDescription>
+            Esta acción es irreversible. Toda la información de tu cuenta será
+            eliminada.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500 mb-4">
-            Account deletion is non-reversable. Please proceed with caution.
-          </p>
-          <form action={deleteAction} className="space-y-4">
+        <form action={deleteFormAction}>
+          <CardContent>
             <div>
-              <Label htmlFor="delete-password" className="mb-2">
-                Confirm Password
+              <Label htmlFor="passwordConfirm">
+                Confirma tu contraseña para eliminar tu cuenta
               </Label>
               <Input
-                id="delete-password"
+                id="passwordConfirm"
                 name="password"
                 type="password"
                 required
-                minLength={8}
-                maxLength={100}
-                defaultValue={deleteState.password}
               />
             </div>
-            {deleteState.error && (
-              <p className="text-red-500 text-sm">{deleteState.error}</p>
+          </CardContent>
+          <CardFooter className="border-t pt-6 flex flex-col items-start">
+             {deleteState.error && (
+              <p className="text-destructive text-sm mb-4">{deleteState.error}</p>
             )}
-            <Button
-              type="submit"
-              variant="destructive"
-              className="bg-red-600 hover:bg-red-700"
-              disabled={isDeletePending}
-            >
+            <Button variant="destructive" type="submit" disabled={isDeletePending}>
               {isDeletePending ? (
-                <>
+                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  Eliminando...
                 </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Account
-                </>
-              )}
+              ) : 'Eliminar mi cuenta'}
             </Button>
-          </form>
-        </CardContent>
+          </CardFooter>
+        </form>
       </Card>
     </section>
   );
