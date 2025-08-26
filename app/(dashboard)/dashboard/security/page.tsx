@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { updateMyPassword, deleteMyAccount } from './actions';
+import { updateMyPassword, deleteMyAccount } from '../actions';
 
 type ActionState = {
   error?: string;
