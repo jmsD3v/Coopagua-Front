@@ -26,7 +26,7 @@ export default function DashboardLayout({
       {/* Mobile header */}
       <div className="lg:hidden flex items-center justify-between border-b p-4">
         <div className="flex items-center">
-          <span className="font-medium">Menu</span>
+          <span className="font-medium">Menú</span>
         </div>
         <Button
           className="-mr-3"
