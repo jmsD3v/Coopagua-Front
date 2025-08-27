@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Login } from '../login';
-import './globals.css';
+import 'app/globals.css';
 
 export default function SignUpPage() {
   return (
