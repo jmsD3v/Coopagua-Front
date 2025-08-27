@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import {
-  getUser,
+  getAuthenticatedUser,
   getUserById,
   updateUser,
   deleteUser,
@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const currentUser: User | null = await getUser();
+    const currentUser: User | null = await getAuthenticatedUser();
 
     // Protect the route
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
@@ -46,7 +46,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const currentUser: User | null = await getUser();
+    const currentUser: User | null = await getAuthenticatedUser();
 
     // Protect the route
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
@@ -74,9 +74,8 @@ export async function PATCH(
 
     const { passwordHash: _, ...userToReturn } = updatedUser;
     return NextResponse.json(userToReturn);
-
   } catch (error: any) {
-     if (error.code === '23505') {
+    if (error.code === '23505') {
       return NextResponse.json(
         { error: 'A user with this email or membership number already exists' },
         { status: 409 }
@@ -95,7 +94,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const currentUser: User | null = await getUser();
+    const currentUser: User | null = await getAuthenticatedUser();
 
     // Protect the route
     if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
@@ -109,7 +108,10 @@ export async function DELETE(
 
     // Prevent users from deleting themselves
     if (currentUser.id === id) {
-        return NextResponse.json({ error: 'You cannot delete yourself' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'You cannot delete yourself' },
+        { status: 400 }
+      );
     }
 
     const deletedUser = await deleteUser(id);
@@ -119,7 +121,6 @@ export async function DELETE(
     }
 
     return new NextResponse(null, { status: 204 }); // No Content
-
   } catch (error) {
     console.error(`Failed to delete user ${params.id}:`, error);
     return NextResponse.json(
