@@ -1,25 +1,10 @@
 import { NextResponse } from 'next/server';
-import {
-  getAuthenticatedUser,
-  getUserById,
-  updateUser,
-  deleteUser,
-} from '@/lib/db/queries';
-import { User } from '@/lib/db/schema';
+import { getUserById, updateUser, deleteUser } from '@/lib/db/queries';
 import { hashPassword } from '@/lib/auth/session';
+import { withRoleProtection } from '@/lib/auth/middleware';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+const getHandler = async (req: Request, { params }: any, sessionUser: any) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -39,26 +24,20 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+};
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+const patchHandler = async (
+  req: Request,
+  { params }: any,
+  sessionUser: any
+) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = await req.json();
     let { password, ...otherData } = body;
 
     // Only allow certain fields to be updated
@@ -101,27 +80,21 @@ export async function PATCH(
       { status: 500 }
     );
   }
-}
+};
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+const deleteHandler = async (
+  req: Request,
+  { params }: any,
+  sessionUser: any
+) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     // Prevent users from deleting themselves
-    if (currentUser.id === id) {
+    if (sessionUser.id === id) {
       return NextResponse.json(
         { error: 'You cannot delete yourself' },
         { status: 400 }
@@ -142,4 +115,10 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+};
+
+// Export the protected routes
+const allowedRoles = ['admin', 'superadmin'];
+export const GET = withRoleProtection(getHandler, allowedRoles);
+export const PATCH = withRoleProtection(patchHandler, allowedRoles);
+export const DELETE = withRoleProtection(deleteHandler, allowedRoles);

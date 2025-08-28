@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, getUsers, createUser } from '@/lib/db/queries';
-import { User, NewUser } from '@/lib/db/schema';
+import { getUsers, createUser } from '@/lib/db/queries';
+import { NewUser } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth/session';
+import { withRoleProtection } from '@/lib/auth/middleware';
 
-export async function GET() {
+// The wrapper handles the auth check. The handler only contains the core logic.
+const getHandler = async (req: Request, context: {}, sessionUser: any) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route: only admins and superadmins can access
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
     const users = await getUsers();
     return NextResponse.json(users);
   } catch (error) {
@@ -21,18 +16,11 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+};
 
-export async function POST(request: Request) {
+const postHandler = async (req: Request, context: {}, sessionUser: any) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route: only admins and superadmins can access
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const body = await request.json();
+    const body = await req.json();
     const { email, password, ...otherData } = body;
 
     if (!email || !password) {
@@ -70,4 +58,8 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
+};
+
+// Export the protected routes
+export const GET = withRoleProtection(getHandler, ['admin', 'superadmin']);
+export const POST = withRoleProtection(postHandler, ['admin', 'superadmin']);

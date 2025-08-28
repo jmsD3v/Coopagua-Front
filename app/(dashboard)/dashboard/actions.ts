@@ -7,7 +7,7 @@ import { users } from '@/lib/db/schema';
 import { comparePasswords, hashPassword } from '@/lib/auth/session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getAuthenticatedUser } from '@/lib/db/queries';
+import { getAuthenticatedUser, getUserById } from '@/lib/db/queries';
 import { validatedAction } from '@/lib/auth/middleware';
 import { revalidatePath } from 'next/cache';
 
@@ -21,9 +21,15 @@ const updateAccountSchema = z.object({
 export const updateMyAccount = validatedAction(
   updateAccountSchema,
   async (data, formData) => {
-    const user = await getAuthenticatedUser();
-    if (!user) {
+    const sessionUser = await getAuthenticatedUser();
+    if (!sessionUser) {
       return { error: 'User not authenticated' };
+    }
+
+    // These actions require the full user object from the DB
+    const user = await getUserById(sessionUser.id);
+    if (!user) {
+      return { error: 'User not found in database' };
     }
 
     const { name, email } = data;
@@ -53,7 +59,9 @@ export const updateMyAccount = validatedAction(
 
 const updatePasswordSchema = z
   .object({
-    currentPassword: z.string().min(8, 'Current password must be at least 8 characters'),
+    currentPassword: z
+      .string()
+      .min(8, 'Current password must be at least 8 characters'),
     newPassword: z.string().min(8, 'New password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
@@ -61,7 +69,7 @@ const updatePasswordSchema = z
     message: "New passwords don't match",
     path: ['confirmPassword'],
   })
-   .refine((data) => data.currentPassword !== data.newPassword, {
+  .refine((data) => data.currentPassword !== data.newPassword, {
     message: 'New password must be different from the current one',
     path: ['newPassword'],
   });
@@ -69,9 +77,15 @@ const updatePasswordSchema = z
 export const updateMyPassword = validatedAction(
   updatePasswordSchema,
   async (data) => {
-    const user = await getAuthenticatedUser();
-    if (!user) {
+    const sessionUser = await getAuthenticatedUser();
+    if (!sessionUser) {
       return { error: 'User not authenticated' };
+    }
+
+    // These actions require the full user object from the DB
+    const user = await getUserById(sessionUser.id);
+    if (!user || !user.passwordHash) {
+      return { error: 'User not found in database or has no password set' };
     }
 
     const { currentPassword, newPassword } = data;
@@ -105,12 +119,21 @@ const deleteAccountSchema = z.object({
 export const deleteMyAccount = validatedAction(
   deleteAccountSchema,
   async (data) => {
-    const user = await getAuthenticatedUser();
-    if (!user) {
+    const sessionUser = await getAuthenticatedUser();
+    if (!sessionUser) {
       return { error: 'User not authenticated' };
     }
 
-    const isPasswordValid = await comparePasswords(data.password, user.passwordHash);
+    // These actions require the full user object from the DB
+    const user = await getUserById(sessionUser.id);
+    if (!user || !user.passwordHash) {
+      return { error: 'User not found in database or has no password set' };
+    }
+
+    const isPasswordValid = await comparePasswords(
+      data.password,
+      user.passwordHash
+    );
     if (!isPasswordValid) {
       return { error: 'Incorrect password.' };
     }

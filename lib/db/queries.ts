@@ -143,27 +143,26 @@ export async function getAuthenticatedUser() {
     return null;
   }
 
-  const sessionData = await verifyToken(sessionCookie.value);
-  if (
-    !sessionData ||
-    !sessionData.user ||
-    typeof sessionData.user.id !== 'number'
-  ) {
+  try {
+    const sessionData = await verifyToken(sessionCookie.value);
+    if (!sessionData || !sessionData.user) {
+      return null;
+    }
+
+    if (new Date(sessionData.expires) < new Date()) {
+      // Optional: Clear the expired cookie
+      // cookies().delete('session');
+      return null;
+    }
+
+    // Return user data directly from the session token
+    // This is not a full `User` object, but contains what's needed for auth checks
+    return sessionData.user;
+  } catch (error) {
+    // If token verification fails
+    console.error('Failed to verify session token:', error);
     return null;
   }
-
-  if (new Date(sessionData.expires) < new Date()) {
-    return null;
-  }
-
-  const user = await db.query.users.findFirst({
-    where: and(eq(users.id, sessionData.user.id), isNull(users.deletedAt)),
-    with: {
-      addresses: true,
-    },
-  });
-
-  return user || null;
 }
 
 export async function getUsers() {

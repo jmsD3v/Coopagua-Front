@@ -5,6 +5,7 @@ import {
   getAuthenticatedUser,
   updateUserSubscription,
   getUserByMercadoPagoCustomerId,
+  getUserById,
 } from '@/lib/db/queries';
 
 // Initialize the MercadoPago client
@@ -22,7 +23,14 @@ export async function createCheckoutPreference({
   title: string;
   price: number;
 }) {
-  const currentUser = user || (await getAuthenticatedUser());
+  let currentUser = user;
+
+  if (!currentUser) {
+    const sessionUser = await getAuthenticatedUser();
+    if (sessionUser) {
+      currentUser = await getUserById(sessionUser.id);
+    }
+  }
 
   if (!currentUser) {
     redirect(`/sign-in?redirect=checkout`);
