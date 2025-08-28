@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Users, Settings, Shield, Activity, Menu } from 'lucide-react';
+import { useUser } from '@/lib/auth/hooks';
 
 export default function DashboardLayout({
   children
@@ -13,20 +14,37 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user, isLoading } = useUser();
 
-  const navItems = [
-    { href: '/dashboard/users', icon: Users, label: 'Usuarios' },
-    { href: '/dashboard/general', icon: Settings, label: 'General' },
-    { href: '/dashboard/activity', icon: Activity, label: 'Activity' },
-    { href: '/dashboard/security', icon: Shield, label: 'Security' }
-  ];
+  const navItems = useMemo(() => {
+    const allItems = [
+      {
+        href: '/dashboard/users',
+        icon: Users,
+        label: 'Usuarios',
+        allowedRoles: ['admin', 'superadmin', 'tecnico']
+      },
+      { href: '/dashboard/general', icon: Settings, label: 'General', allowedRoles: ['admin', 'superadmin'] },
+      { href: '/dashboard/activity', icon: Activity, label: 'Activity', allowedRoles: ['admin', 'superadmin'] },
+      { href: '/dashboard/security', icon: Shield, label: 'Security', allowedRoles: ['admin', 'superadmin'] },
+      { href: '/dashboard/mi-cuenta', icon: Users, label: 'Mi Cuenta', allowedRoles: ['socio'] }
+    ];
+
+    if (isLoading || !user) {
+      return [];
+    }
+
+    return allItems.filter(item => item.allowedRoles.includes(user.role));
+
+  }, [user, isLoading]);
+
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-68px)] max-w-7xl mx-auto w-full bg-background">
       {/* Mobile header */}
       <div className="lg:hidden flex items-center justify-between border-b p-4">
         <div className="flex items-center">
-          <span className="font-medium">Menú</span>
+          <span className="font-medium">Menu</span>
         </div>
         <Button
           className="-mr-3"

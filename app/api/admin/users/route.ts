@@ -48,6 +48,8 @@ export async function POST(request: Request) {
       email,
       passwordHash,
       ...otherData,
+      // Ensure empty string becomes null to avoid unique constraint errors
+      membershipNumber: otherData.membershipNumber || null,
     };
 
     const createdUser = await createUser(newUser);
@@ -57,10 +59,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(userToReturn, { status: 201 });
   } catch (error: any) {
-    // Handle specific error for duplicate email
+    // Handle specific error for duplicate email or membership number
     if (error.code === '23505') {
       return NextResponse.json(
-        { error: 'A user with this email already exists' },
+        { error: 'A user with this email or membership number already exists.' },
         { status: 409 }
       );
     }

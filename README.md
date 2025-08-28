@@ -14,7 +14,8 @@ Este es un sistema de gestión interna para una cooperativa de agua, construido 
 
 **1. Clonar el Repositorio**
 ```bash
-# (El usuario ya tiene esto)
+git clone https://github.com/nextjs/saas-starter.git
+cd saas-starter
 ```
 
 **2. Configurar el Entorno**
@@ -45,7 +46,3 @@ La aplicación estará disponible en `http://localhost:3000`.
 **Usuario de Prueba:**
 *   **Email:** `test@test.com`
 *   **Contraseña:** `admin123`
-
-- https://makerkit.dev
-- https://zerotoshipped.com
-- https://turbostarter.dev

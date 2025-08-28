@@ -5,8 +5,8 @@ import { getAuthenticatedUser } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
-  title: 'Cooperativa de Agua Potable',
-  description: 'Gestión de servicios para la Cooperativa de Agua Potable.',
+  title: 'Cooperativa de Agua',
+  description: 'Gestión de servicios para la Cooperativa de Agua.',
 };
 
 export const viewport: Viewport = {
@@ -28,8 +28,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang='es' className={manrope.className} suppressHydrationWarning>
-      <body className={`green-theme min-h-[100dvh] bg-background`}>
+    <html lang="es" className={manrope.className} suppressHydrationWarning>
+      <body className={`dark min-h-[100dvh] bg-background`}>
         <SWRConfig
           value={{
             fallback: {

@@ -1,12 +1,12 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 /*
   ---break---
 */
-/* @custom-variant dark (&:is(.dark *)); */
+@custom-variant dark (&:is(.dark *));
 
-@import 'tw-animate-css';
+@import "tw-animate-css";
 
-/* @variant dark (&:is(.dark *)); */
+@variant dark (&:is(.dark *));
 
 @theme {
   --color-background: hsl(var(--background));
@@ -77,7 +77,7 @@
 
 @layer utilities {
   body {
-    font-family: 'Manrope', Arial, Helvetica, sans-serif;
+    font-family: "Manrope", Arial, Helvetica, sans-serif;
   }
 }
 
@@ -106,25 +106,25 @@
   }
 
   .dark {
-    --background: 145 40% 35%; /* Verde normal, ni oscuro ni chillón */
-    --foreground: 45 90% 85%; /* Amarillo claro para texto principal */
-    --card: 145 35% 40%; /* Verde ligeramente más claro para tarjetas */
-    --card-foreground: 45 90% 85%;
-    --popover: 145 35% 30%;
-    --popover-foreground: 45 90% 85%;
-    --primary: 145 50% 45%; /* Verde medio para botones */
-    --primary-foreground: 45 90% 95%; /* Texto amarillo claro */
-    --secondary: 45 90% 65%; /* Amarillo cálido */
-    --secondary-foreground: 145 20% 10%; /* Verde muy oscuro para contraste */
-    --muted: 145 30% 45%; /* Verde apagado */
-    --muted-foreground: 45 80% 70%; /* Amarillo suave */
-    --accent: 45 95% 60%; /* Amarillo vibrante */
-    --accent-foreground: 145 20% 10%;
-    --destructive: 0 70% 45%; /* Rojo para acciones destructivas */
+    --background: 145 55% 12%;
+    --foreground: 145 15% 96%;
+    --card: 145 55% 16%;
+    --card-foreground: 145 15% 96%;
+    --popover: 145 55% 8%;
+    --popover-foreground: 145 15% 96%;
+    --primary: 145 60% 45%;
+    --primary-foreground: 145 20% 98%;
+    --secondary: 45 90% 55%;
+    --secondary-foreground: 45 90% 10%;
+    --muted: 145 40% 20%;
+    --muted-foreground: 145 10% 65%;
+    --accent: 45 90% 55%;
+    --accent-foreground: 45 95% 5%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 145 30% 40%; /* Verde apagado para bordes */
-    --input: 145 30% 45%; /* Verde medio para campos */
-    --ring: 45 90% 60%; /* Amarillo para foco */
+    --border: 145 40% 20%;
+    --input: 145 40% 25%;
+    --ring: 145 60% 45%;
   }
 }
 
@@ -173,31 +173,31 @@
   ---break---
 */
 
-.green-theme {
-  --background: hsl(145, 40%, 35%);
-  --foreground: hsl(45, 90%, 85%);
-  --card: hsl(145, 35%, 40%);
-  --card-foreground: hsl(45, 90%, 85%);
-  --popover: hsl(145, 35%, 30%);
-  --popover-foreground: hsl(45, 90%, 85%);
-  --primary: hsl(145, 50%, 45%);
-  --primary-foreground: hsl(45, 90%, 95%);
-  --secondary: hsl(45, 90%, 65%);
-  --secondary-foreground: hsl(145, 20%, 10%);
-  --muted: hsl(145, 30%, 45%);
-  --muted-foreground: hsl(45, 80%, 70%);
-  --accent: hsl(45, 95%, 60%);
-  --accent-foreground: hsl(145, 20%, 10%);
-  --destructive: hsl(0, 70%, 45%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --border: hsl(145, 30%, 40%);
-  --input: hsl(145, 30%, 45%);
-  --ring: hsl(45, 90%, 60%);
-  --chart-1: hsl(45, 85%, 55%);
-  --chart-2: hsl(145, 50%, 45%);
-  --chart-3: hsl(145, 35%, 30%);
-  --chart-4: hsl(45, 95%, 65%);
-  --chart-5: hsl(145, 60%, 50%);
+.dark {
+  --background: hsl(240 10% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(240 10% 3.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 10% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(0 0% 98%);
+  --primary-foreground: hsl(240 5.9% 10%);
+  --secondary: hsl(240 3.7% 15.9%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(240 3.7% 15.9%);
+  --muted-foreground: hsl(240 5% 64.9%);
+  --accent: hsl(240 3.7% 15.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 3.7% 15.9%);
+  --input: hsl(240 3.7% 15.9%);
+  --ring: hsl(240 4.9% 83.9%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
 }
 
 /*

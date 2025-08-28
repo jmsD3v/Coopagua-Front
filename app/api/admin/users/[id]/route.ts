@@ -10,7 +10,7 @@ import { hashPassword } from '@/lib/auth/session';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const currentUser: User | null = await getAuthenticatedUser();
@@ -20,7 +20,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
@@ -43,7 +43,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const currentUser: User | null = await getAuthenticatedUser();
@@ -53,7 +53,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
@@ -74,8 +74,9 @@ export async function PATCH(
 
     const { passwordHash: _, ...userToReturn } = updatedUser;
     return NextResponse.json(userToReturn);
+
   } catch (error: any) {
-    if (error.code === '23505') {
+     if (error.code === '23505') {
       return NextResponse.json(
         { error: 'A user with this email or membership number already exists' },
         { status: 409 }
@@ -91,7 +92,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const currentUser: User | null = await getAuthenticatedUser();
@@ -101,17 +102,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     // Prevent users from deleting themselves
     if (currentUser.id === id) {
-      return NextResponse.json(
-        { error: 'You cannot delete yourself' },
-        { status: 400 }
-      );
+        return NextResponse.json({ error: 'You cannot delete yourself' }, { status: 400 });
     }
 
     const deletedUser = await deleteUser(id);
@@ -121,6 +119,7 @@ export async function DELETE(
     }
 
     return new NextResponse(null, { status: 204 }); // No Content
+
   } catch (error) {
     console.error(`Failed to delete user ${params.id}:`, error);
     return NextResponse.json(
