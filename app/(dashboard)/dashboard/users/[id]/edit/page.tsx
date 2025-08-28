@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import {
   NewUser,
   userRoleEnum,
-  connectionStatusEnum,
+  userStatusEnum,
   User,
 } from '@/lib/db/schema';
 import Link from 'next/link';
@@ -47,12 +47,12 @@ export default function EditUserPage() {
     if (user) {
       reset({
         name: user.name ?? '',
-        email: user.email,
+        email: user.email ?? '',
         phone: user.phone ?? '',
         membershipNumber: user.membershipNumber ?? '',
         tariffCategory: user.tariffCategory ?? '',
         role: user.role,
-        connectionStatus: user.connectionStatus ?? 'activa',
+        status: user.status ?? 'activa',
       });
     }
   }, [user, reset]);
@@ -193,10 +193,10 @@ export default function EditUserPage() {
               <Label htmlFor='connectionStatus'>Estado de Conexión</Label>
               <select
                 id='connectionStatus'
-                {...register('connectionStatus')}
+                {...register('status')}
                 className='mt-1 block w-full rounded-md border-border bg-background py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-ring sm:text-sm'
               >
-                {connectionStatusEnum.enumValues.map((status) => (
+                {userStatusEnum.enumValues.map((status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>

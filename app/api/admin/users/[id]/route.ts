@@ -61,12 +61,26 @@ export async function PATCH(
     const body = await request.json();
     let { password, ...otherData } = body;
 
+    // Only allow certain fields to be updated
+    const allowedFields = [
+      'email',
+      'name',
+      'membershipNumber',
+      'role',
+      'status',
+      'phone',
+      'tariffCategory',
+    ];
+    const sanitizedData = Object.fromEntries(
+      Object.entries(otherData).filter(([key]) => allowedFields.includes(key))
+    );
+
     // If password is being updated, hash it
     if (password) {
-      otherData.passwordHash = await hashPassword(password);
+      sanitizedData.passwordHash = await hashPassword(password);
     }
 
-    const updatedUser = await updateUser(id, otherData);
+    const updatedUser = await updateUser(id, sanitizedData);
 
     if (!updatedUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

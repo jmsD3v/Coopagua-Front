@@ -70,7 +70,7 @@ export default function MiCuentaPage() {
               />
               <InfoRow
                 label='Estado de Conexión'
-                value={user.connectionStatus}
+                value={user.status}
               />
             </dl>
           </CardContent>

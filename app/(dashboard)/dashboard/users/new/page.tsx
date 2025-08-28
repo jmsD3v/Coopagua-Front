@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { NewUser, userRoleEnum, connectionStatusEnum } from '@/lib/db/schema';
+import { NewUser, userRoleEnum, userStatusEnum } from '@/lib/db/schema';
 import Link from 'next/link';
 
 type Inputs = Omit<
@@ -157,10 +157,10 @@ export default function NewUserPage() {
               <Label htmlFor='connectionStatus'>Estado de Conexión</Label>
               <select
                 id='connectionStatus'
-                {...register('connectionStatus')}
+                {...register('status')}
                 className='mt-1 block w-full rounded-md border-border bg-background py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-ring sm:text-sm'
               >
-                {connectionStatusEnum.enumValues.map((status) => (
+                {userStatusEnum.enumValues.map((status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>

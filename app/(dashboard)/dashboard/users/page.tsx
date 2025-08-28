@@ -140,12 +140,12 @@ export default function UsersPage() {
                     <td className='whitespace-nowrap px-3 py-4 text-sm text-muted-foreground'>
                       <span
                         className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                          user.connectionStatus === 'activa'
+                          user.status === 'activo'
                             ? 'bg-green-500/10 text-green-400 ring-green-500/20'
                             : 'bg-red-500/10 text-red-400 ring-red-500/20'
                         }`}
                       >
-                        {user.connectionStatus}
+                        {user.status}
                       </span>
                     </td>
                     <td className='relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 space-x-4'>
