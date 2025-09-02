@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { User } from '@/lib/db/schema';
-import { getAuthenticatedUser } from '@/lib/db/queries';
+import { getAuthenticatedUser, getUserById } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
 
 export type ActionState = {
@@ -29,19 +29,54 @@ export function validatedAction<S extends z.ZodType<any, any>, T>(
   };
 }
 
-
-// A higher-order function that provides the authenticated user to a server action
-type ActionWithUserFunction<T> = (
-  formData: FormData,
-  user: User
-) => Promise<T>;
+// A higher-order function that provides the full authenticated user to a server action
+type ActionWithUserFunction<T> = (formData: FormData, user: User) => Promise<T>;
 
 export function withUser<T>(action: ActionWithUserFunction<T>) {
   return async (formData: FormData): Promise<T> => {
-    const user = await getAuthenticatedUser();
-    if (!user) {
+    const sessionUser = await getAuthenticatedUser();
+    if (!sessionUser) {
       redirect('/sign-in');
     }
+
+    const user = await getUserById(sessionUser.id);
+    if (!user) {
+      // This case should be rare if a session exists, but it's a good safeguard
+      // It can happen if the user was deleted from the DB but a session cookie remains.
+      redirect('/sign-in');
+    }
+
     return action(formData, user);
+  };
+}
+
+// A wrapper for Next.js API routes to protect them based on user roles.
+type SessionUser = {
+  id: number;
+  role: 'socio' | 'admin' | 'tecnico' | 'superadmin';
+  status: 'activo' | 'moroso' | 'suspendido' | 'baja';
+};
+
+type ApiHandler = (
+  req: Request,
+  context: { params?: any },
+  sessionUser: SessionUser
+) => Promise<Response>;
+
+export function withRoleProtection(
+  handler: ApiHandler,
+  allowedRoles: User['role'][]
+) {
+  return async (req: Request, context: { params?: any }) => {
+    const sessionUser = await getAuthenticatedUser();
+
+    if (!sessionUser || !allowedRoles.includes(sessionUser.role)) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return handler(req, context, sessionUser);
   };
 }

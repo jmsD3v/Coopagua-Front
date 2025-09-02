@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
-import { getAuthenticatedUser } from '@/lib/db/queries';
+import { getAuthenticatedUser, getUserById } from '@/lib/db/queries';
 import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
@@ -22,9 +22,15 @@ export default async function RootLayout({
 }) {
   let user = null;
   try {
-    user = await getAuthenticatedUser();
+    const sessionUser = await getAuthenticatedUser();
+    if (sessionUser) {
+      // We have a session, now fetch the full user object to provide as a
+      // fallback for the client-side SWR cache.
+      user = await getUserById(sessionUser.id);
+    }
   } catch (error) {
-    console.error('Failed to connect to DB in RootLayout:', error);
+    // This can happen if the database is not available.
+    console.error('Failed to fetch user in RootLayout:', error);
   }
 
   return (
