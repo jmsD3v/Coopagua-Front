@@ -81,11 +81,11 @@ function UserMenu() {
 
 function Header() {
   return (
-    <header className='border-b'>
+    <header className='border-b bg-foreground'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center'>
         <Link href='/' className='flex items-center gap-2'>
           <Logo />
-          <span className='text-xl font-semibold'>
+          <span className='text-xl font-semibold text-green-700'>
             Cooperativa de Agua Potable de Las Breñas
           </span>
         </Link>

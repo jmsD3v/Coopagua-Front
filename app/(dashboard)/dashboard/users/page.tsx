@@ -275,19 +275,19 @@ export default function UsersPage() {
                 <tr>
                   <th
                     scope='col'
-                    className='py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0'
+                    className='py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0'
                   >
                     Nombre
                   </th>
                   <th
                     scope='col'
-                    className='px-3 py-3.5 text-left text-sm font-semibold text-gray-900'
+                    className='px-3 py-3.5 text-left text-sm font-semibold'
                   >
                     Email
                   </th>
                   <th
                     scope='col'
-                    className='px-3 py-3.5 text-left text-sm font-semibold text-gray-900'
+                    className='px-3 py-3.5 text-left text-sm font-semibold'
                   >
                     Rol
                   </th>
@@ -299,20 +299,17 @@ export default function UsersPage() {
               <tbody className='divide-y divide-gray-200'>
                 {users?.map((user) => (
                   <tr key={user.id}>
-                    <td className='whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0'>
+                    <td className='whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-0'>
                       {user.name}
                     </td>
-                    <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                    <td className='whitespace-nowrap px-3 py-4 text-sm'>
                       {user.email}
                     </td>
-                    <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                    <td className='whitespace-nowrap px-3 py-4 text-sm'>
                       {user.role}
                     </td>
                     <td className='relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 space-x-4'>
-                      <Link
-                        href={`/dashboard/users/${user.id}/edit`}
-                        className='text-indigo-600 hover:text-indigo-900'
-                      >
+                      <Link href={`/dashboard/users/${user.id}/edit`}>
                         Editar
                       </Link>
                       <button
