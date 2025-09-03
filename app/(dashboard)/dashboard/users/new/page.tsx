@@ -1,30 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { NewUser, userRoleEnum, userStatusEnum } from '@/lib/db/schema';
-import Link from 'next/link';
+import UsuarioFormCompleto from '@/components/UsuarioFormCompleto';
 
-type Inputs = Omit<
-  NewUser,
-  'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'passwordHash'
-> & {
-  password?: string;
-};
+// The form component defines its own data type.
+type FormValues = Parameters<
+  React.ComponentProps<typeof UsuarioFormCompleto>['onSubmit']
+>[0];
 
 export default function NewUserPage() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError,
-  } = useForm<Inputs>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const handleCreateUser = async (data: FormValues) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
       const response = await fetch('/api/admin/users', {
         method: 'POST',
@@ -33,153 +26,35 @@ export default function NewUserPage() {
       });
 
       const result = await response.json();
-
       if (!response.ok) {
         throw new Error(result.error || 'Something went wrong');
       }
 
-      // Redirect to the users list on success
       router.push('/dashboard/users');
-      router.refresh(); // a soft refresh to show the new user in the list
-    } catch (error: any) {
-      setError('root.serverError', {
-        type: 'manual',
-        message: error.message,
-      });
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className='p-4 sm:p-6 lg:p-8'>
-      <div className='sm:flex sm:items-center'>
-        <div className='sm:flex-auto'>
-          <h1 className='text-2xl font-bold leading-6'>Crear Nuevo Usuario</h1>
-          <p className='mt-2 text-sm text-muted-foreground'>
-            Agregar un nuevo usuario a la Cooperativa.
-          </p>
-        </div>
+      <div className='mb-8'>
+        <h1 className='text-2xl font-bold leading-6'>Crear Nuevo Usuario</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>
+          Rellena los campos para añadir un nuevo socio/usuario a la cooperativa.
+        </p>
       </div>
-      <div className='mt-8 flow-root'>
-        <div className='max-w-xl'>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-            {/* Form-level error */}
-            {errors.root?.serverError && (
-              <div className='rounded-md bg-destructive/10 p-4 text-sm text-destructive'>
-                {errors.root.serverError.message}
-              </div>
-            )}
 
-            {/* Name */}
-            <div>
-              <Label htmlFor='name'>Nombre completo</Label>
-              <Input
-                id='name'
-                {...register('name', { required: 'Name is required' })}
-              />
-              {errors.name && (
-                <p className='mt-2 text-sm text-destructive'>
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <Label htmlFor='email'>Email</Label>
-              <Input
-                id='email'
-                type='email'
-                {...register('email', { required: 'Email is required' })}
-              />
-              {errors.email && (
-                <p className='mt-2 text-sm text-destructive'>
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div>
-              <Label htmlFor='password'>Contraseña</Label>
-              <Input
-                id='password'
-                type='password'
-                {...register('password', { required: 'Password is required' })}
-              />
-              {errors.password && (
-                <p className='mt-2 text-sm text-destructive'>
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Membership Number */}
-            <div>
-              <Label htmlFor='membershipNumber'>Número de Socio</Label>
-              <Input id='membershipNumber' {...register('membershipNumber')} />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <Label htmlFor='phone'>Teléfono</Label>
-              <Input id='phone' {...register('phone')} />
-            </div>
-
-            {/* Tariff Category */}
-            <div>
-              <Label htmlFor='tariffCategory'>Categoría de Tarifa</Label>
-              <Input id='tariffCategory' {...register('tariffCategory')} />
-            </div>
-
-            {/* Role */}
-            <div>
-              <Label htmlFor='role'>Rol</Label>
-              <select
-                id='role'
-                {...register('role', { required: 'Role is required' })}
-                className='mt-1 block w-full rounded-md border-border bg-background py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-ring sm:text-sm'
-              >
-                {userRoleEnum.enumValues.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-              {errors.role && (
-                <p className='mt-2 text-sm text-destructive'>
-                  {errors.role.message}
-                </p>
-              )}
-            </div>
-
-            {/* Connection Status */}
-            <div>
-              <Label htmlFor='connectionStatus'>Estado de Conexión</Label>
-              <select
-                id='connectionStatus'
-                {...register('status')}
-                className='mt-1 block w-full rounded-md border-border bg-background py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-ring sm:text-sm'
-              >
-                {userStatusEnum.enumValues.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Action Buttons */}
-            <div className='flex items-center justify-end gap-x-4'>
-              <Button variant='ghost' asChild>
-                <Link href='/dashboard/users'>Cancelar</Link>
-              </Button>
-              <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create User'}
-              </Button>
-            </div>
-          </form>
+      {error && (
+        <div className='p-4 mb-4 rounded-md bg-destructive/10 text-sm text-destructive'>
+          {error}
         </div>
-      </div>
+      )}
+
+      <UsuarioFormCompleto onSubmit={handleCreateUser} isLoading={isLoading} />
     </div>
   );
 }

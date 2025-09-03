@@ -26,9 +26,9 @@ export async function createCheckoutPreference({
   let currentUser = user;
 
   if (!currentUser) {
-    const sessionUser = await getAuthenticatedUser();
-    if (sessionUser) {
-      currentUser = await getUserById(sessionUser.id);
+    const session = await getAuthenticatedUser();
+    if (session) {
+      currentUser = await getUserById(session.id);
     }
   }
 

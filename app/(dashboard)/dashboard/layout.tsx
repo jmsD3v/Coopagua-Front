@@ -4,8 +4,15 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, Settings, Shield, Activity, Menu } from 'lucide-react';
-import { useUser } from '@/lib/auth/hoocks';
+import {
+  Users,
+  Settings,
+  Shield,
+  Activity,
+  Menu,
+  Wrench,
+} from 'lucide-react';
+import { useUser } from '@/lib/auth/hooks';
 
 export default function DashboardLayout({
   children,
@@ -18,11 +25,12 @@ export default function DashboardLayout({
 
   const navItems = useMemo(() => {
     const allItems = [
+      // Admin-only links
       {
         href: '/dashboard/users',
         icon: Users,
         label: 'Usuarios',
-        allowedRoles: ['admin', 'superadmin', 'tecnico'],
+        allowedRoles: ['admin', 'superadmin'],
       },
       {
         href: '/dashboard/general',
@@ -36,17 +44,25 @@ export default function DashboardLayout({
         label: 'Activity',
         allowedRoles: ['admin', 'superadmin'],
       },
+      // Technician links (also visible to admin)
       {
-        href: '/dashboard/security',
-        icon: Shield,
-        label: 'Security',
-        allowedRoles: ['admin', 'superadmin'],
+        href: '/dashboard/gestion-tecnica',
+        icon: Wrench,
+        label: 'Gestión Técnica',
+        allowedRoles: ['tecnico', 'admin', 'superadmin'],
       },
+      // Shared links for all authenticated users
       {
         href: '/dashboard/mi-cuenta',
         icon: Users,
         label: 'Mi Cuenta',
-        allowedRoles: ['socio'],
+        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
+      },
+      {
+        href: '/dashboard/security',
+        icon: Shield,
+        label: 'Security',
+        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
       },
     ];
 

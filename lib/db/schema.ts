@@ -116,6 +116,7 @@ import {
   pgEnum,
   numeric,
   date,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -132,6 +133,20 @@ export const userStatusEnum = pgEnum('user_status', [
   'activo',
   'moroso',
   'suspendido',
+  'baja',
+]);
+
+export const documentTypeEnum = pgEnum('document_type', [
+  'DNI',
+  'CUIT',
+  'Pasaporte',
+]);
+
+export const vatConditionEnum = pgEnum('vat_condition', [
+  'Responsable Inscripto',
+  'Monotributo',
+  'Exento',
+  'Consumidor Final',
 ]);
 
 export const invoiceStatusEnum = pgEnum('invoice_status', [
@@ -150,18 +165,24 @@ export const claimStatusEnum = pgEnum('claim_status', [
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(), // Razón Social for companies
+  businessName: varchar('business_name', { length: 255 }),
   email: varchar('email', { length: 255 }).unique(),
-  dni: varchar('dni', { length: 50 }).unique(),
   passwordHash: text('password_hash'),
   role: userRoleEnum('role').default('socio').notNull(),
   status: userStatusEnum('status').default('activo').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at'),
-  deletedAt: timestamp('deleted_at'),
+  documentType: documentTypeEnum('document_type'),
+  documentNumber: varchar('document_number', { length: 50 }).unique(),
+  vatCondition: vatConditionEnum('vat_condition'),
   phone: varchar('phone', { length: 50 }),
   membershipNumber: varchar('membership_number', { length: 100 }).unique(),
   tariffCategory: varchar('tariff_category', { length: 100 }),
+  coefficient: numeric('coefficient', { precision: 10, scale: 4 }),
+  isTaxExempt: boolean('is_tax_exempt').default(false).notNull(),
+  enablePdfPrinting: boolean('enable_pdf_printing').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at'),
+  deletedAt: timestamp('deleted_at'),
   mpCustomerId: text('mp_customer_id').unique(),
   mpSubscriptionId: text('mp_subscription_id').unique(),
 });
@@ -176,6 +197,12 @@ export const addresses = pgTable('addresses', {
   neighborhood: varchar('neighborhood', { length: 100 }),
   city: varchar('city', { length: 100 }).notNull(),
   status: varchar('status', { length: 50 }).default('activo').notNull(),
+  route: varchar('route', { length: 100 }),
+  block: varchar('block', { length: 50 }),
+  plot: varchar('plot', { length: 50 }),
+  chNumber: varchar('ch_number', { length: 50 }),
+  section: varchar('section', { length: 50 }),
+  district: varchar('district', { length: 100 }),
 });
 
 export const meters = pgTable('meters', {

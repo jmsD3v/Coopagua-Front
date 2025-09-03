@@ -148,7 +148,7 @@ export const deleteMyAccount = validatedAction(
       .where(eq(users.id, user.id));
 
     // Log user out by deleting the session cookie
-    cookies().delete('session');
+    (await cookies()).delete('session');
     redirect('/sign-in');
   }
 );

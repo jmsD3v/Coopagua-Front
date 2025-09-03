@@ -179,7 +179,11 @@ export async function getUserById(id: number) {
   const user = await db.query.users.findFirst({
     where: and(eq(users.id, id), isNull(users.deletedAt)),
     with: {
-      addresses: true,
+      addresses: {
+        with: {
+          meters: true,
+        },
+      },
     },
   });
   return user || null;
