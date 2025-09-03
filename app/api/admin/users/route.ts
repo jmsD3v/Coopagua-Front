@@ -3,9 +3,15 @@ import { getUsers, createUser } from '@/lib/db/queries';
 import { NewUser, User } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth/session';
 import { withRoleProtection } from '@/lib/auth/middleware';
+import { db } from '@/lib/db/drizzle';
+import { users, addresses, meters } from '@/lib/db/schema';
 
-// The wrapper handles the auth check. The handler only contains the core logic.
-const getHandler = async (req: Request, context: {}, sessionUser: any) => {
+// --- GET Handler ---
+const getHandler = async (
+  req: Request,
+  context: { params: {} },
+  sessionUser: any
+): Promise<Response> => {
   try {
     const users = await getUsers();
     return NextResponse.json(users);
@@ -18,16 +24,16 @@ const getHandler = async (req: Request, context: {}, sessionUser: any) => {
   }
 };
 
-import { db } from '@/lib/db/drizzle';
-import { users, addresses, meters } from '@/lib/db/schema';
-
-const postHandler = async (req: Request, context: {}, sessionUser: any) => {
+// --- POST Handler ---
+const postHandler = async (
+  req: Request,
+  context: { params: {} },
+  sessionUser: any
+): Promise<Response> => {
   try {
     const body = await req.json();
 
-    // Separate data for each table
     const {
-      // User fields
       name,
       email,
       password,
@@ -41,7 +47,6 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
       coefficient,
       isTaxExempt,
       enablePdfPrinting,
-      // Address fields
       addressStreet,
       addressNumber,
       addressNeighborhood,
@@ -52,14 +57,11 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
       addressChNumber,
       addressSection,
       addressDistrict,
-      // Meter field
       meterNumber,
-      // Role/Status fields
       role,
       status,
     } = body;
 
-    // A user must have at least a name and document number
     if (!name || !documentNumber) {
       return NextResponse.json(
         { error: 'Name and document number are required.' },
@@ -87,7 +89,7 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
         coefficient,
         isTaxExempt,
         enablePdfPrinting,
-        role: role || 'socio', // Default to 'socio' if not provided
+        role: role || 'socio',
         status: status === 'baja' ? 'baja' : 'activo',
       };
 
@@ -126,7 +128,6 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
         });
       }
 
-      // We don't need to return address/meter, just the user
       return createdUser;
     });
 
@@ -134,12 +135,9 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
       throw new Error('Transaction failed: Could not create user.');
     }
 
-    // Don't return the password hash
     const { passwordHash: _, ...userToReturn } = fullUser;
-
     return NextResponse.json(userToReturn, { status: 201 });
   } catch (error: any) {
-    // Handle specific error for duplicate email/document
     if (error.code === '23505') {
       return NextResponse.json(
         { error: 'A user with this email or document number already exists.' },
@@ -154,9 +152,20 @@ const postHandler = async (req: Request, context: {}, sessionUser: any) => {
   }
 };
 
-// Define allowed roles with the correct type
+// --- Allowed Roles ---
 const allowedRoles: User['role'][] = ['admin', 'superadmin'];
 
-// Export the protected routes
-export const GET = withRoleProtection(getHandler, allowedRoles);
-export const POST = withRoleProtection(postHandler, allowedRoles);
+// --- Exported Handlers with Middleware ---
+export async function GET(
+  req: Request,
+  context: { params: {} }
+): Promise<Response> {
+  return withRoleProtection(getHandler, allowedRoles)(req, context);
+}
+
+export async function POST(
+  req: Request,
+  context: { params: {} }
+): Promise<Response> {
+  return withRoleProtection(postHandler, allowedRoles)(req, context);
+}
