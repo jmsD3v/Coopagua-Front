@@ -6,6 +6,7 @@ import { User } from '@/lib/db/schema';
 import { getDashboardPath } from '@/lib/auth/utils';
 import { signOut } from '@/app/(login)/actions';
 import { AnimatedCounter } from '@/components/ui/animatedCounter';
+import Developer from '@/components/ui/developer';
 
 type NavbarProps = {
   user:
@@ -339,7 +340,7 @@ const Home = async () => {
         <div className='container mx-auto px-4 text-center'>
           <p>
             &copy; {new Date().getFullYear()} Cooperativa de Agua Potable de Las
-            Breñas. Todos los derechos reservados.
+            Breñas. Desarrollado con 💜 por <Developer/> Todos los derechos reservados.
           </p>
         </div>
       </footer>
