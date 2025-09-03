@@ -86,7 +86,7 @@ function Header() {
         <Link href='/' className='flex items-center gap-2'>
           <Logo />
           <span className='text-xl font-semibold text-green-700'>
-            Cooperativa de Agua Potable de Las Breñas
+            Cooperativa de Provisión de Agua Potable, Otros Servicios Públicos y Vivienda Las Breñas Ltda.
           </span>
         </Link>
         <div className='flex items-center space-x-4'>

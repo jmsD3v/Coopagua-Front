@@ -6,7 +6,7 @@ import { SWRConfig } from 'swr';
 
 export const metadata: Metadata = {
   title: 'Cooperativa de Agua Potable',
-  description: 'Gestión de servicios para la Cooperativa de Agua Potable.',
+  description: 'Cooperativa de Provisión de Agua Potable, Otros Servicios Públicos y Vivienda Las Breñas Ltda.',
 };
 
 export const viewport: Viewport = {

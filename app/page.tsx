@@ -27,7 +27,7 @@ const Navbar = ({ user }: NavbarProps) => {
         <Link href='/' className='flex items-center gap-2'>
           <Logo />
           <span className='text-xl font-semibold text-green-800'>
-            Cooperativa de Agua Potable de Las Breñas
+            Cooperativa de Provisión de Agua Potable, Otros Servicios Públicos y Vivienda Las Breñas Ltda.
           </span>
         </Link>
         <div className='hidden md:flex space-x-6 items-center'>
@@ -339,8 +339,7 @@ const Home = async () => {
       <footer className='bg-[#2e7d32] text-white py-8 rounded-t-lg shadow-md'>
         <div className='container mx-auto px-4 text-center'>
           <p>
-            &copy; {new Date().getFullYear()} Cooperativa de Agua Potable de Las
-            Breñas. Desarrollado con 💜 por <Developer/> Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} Cooperativa de Provisión de Agua Potable, Otros Servicios Públicos y Vivienda Las Breñas Ltda. Desarrollado con 💜 por <Developer/> Todos los derechos reservados.
           </p>
         </div>
       </footer>
