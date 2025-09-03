@@ -158,14 +158,16 @@ const allowedRoles: User['role'][] = ['admin', 'superadmin'];
 // --- Exported Handlers with Middleware ---
 export async function GET(
   req: Request,
-  context: { params: {} }
+  context: { params: Promise<{}> }
 ): Promise<Response> {
+  await context.params;
   return withRoleProtection(getHandler, allowedRoles)(req, context);
 }
 
 export async function POST(
   req: Request,
-  context: { params: {} }
+  context: { params: Promise<{}> }
 ): Promise<Response> {
+  await context.params;
   return withRoleProtection(postHandler, allowedRoles)(req, context);
 }

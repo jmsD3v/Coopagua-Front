@@ -5,7 +5,7 @@ export const getDashboardPath = (role: User['role']) => {
     case 'admin':
     case 'superadmin':
       return '/dashboard/users';
-    case 'técnico':
+    case 'tecnico':
       return '/dashboard/gestion-tecnica';
     case 'socio':
     default:

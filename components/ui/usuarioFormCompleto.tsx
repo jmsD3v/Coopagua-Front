@@ -43,7 +43,7 @@ type FormValues = {
   enablePdfPrinting: boolean;
   isMember: 'socio' | 'no_socio';
   status: 'activo' | 'baja';
-  role: 'socio' | 'admin' | 'técnico' | 'superadmin';
+  role: 'socio' | 'admin' | 'tecnico' | 'superadmin';
 };
 
 interface UsuarioFormCompletoProps {

@@ -11,7 +11,9 @@ async function seed() {
   });
 
   if (existingUser) {
-    console.log('Superadmin user (test@test.com) already exists. Seeding not required.');
+    console.log(
+      'Superadmin user (test@test.com) already exists. Seeding not required.'
+    );
     return;
   }
 
@@ -30,7 +32,7 @@ async function seed() {
         role: 'superadmin',
         membershipNumber: '00001',
         tariffCategory: 'Admin',
-        connectionStatus: 'activa',
+        status: 'activo',
       },
     ])
     .returning();

@@ -8,7 +8,13 @@ import { signOut } from '@/app/(login)/actions';
 import { AnimatedCounter } from '@/components/ui/animatedCounter';
 
 type NavbarProps = {
-  user: Partial<User> & { id: number; role: "socio" | "admin" | "técnico" | "superadmin"; status: "activo" | "moroso" | "suspendido" | "baja"; } | null;
+  user:
+    | (Partial<User> & {
+        id: number;
+        role: 'socio' | 'admin' | 'tecnico' | 'superadmin';
+        status: 'activo' | 'moroso' | 'suspendido' | 'baja';
+      })
+    | null;
 };
 
 const Navbar = ({ user }: NavbarProps) => {

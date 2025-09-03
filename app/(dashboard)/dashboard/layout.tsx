@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Users, Settings, Shield, Activity, Menu, Wrench } from 'lucide-react';
-import { useUser } from '@/lib/auth/hooks'
+import { useUser } from '@/lib/auth/hooks';
 
 export default function DashboardLayout({
   children,
@@ -42,20 +42,20 @@ export default function DashboardLayout({
         href: '/dashboard/gestion-tecnica',
         icon: Wrench,
         label: 'Gestión Técnica',
-        allowedRoles: ['técnico', 'admin', 'superadmin'],
+        allowedRoles: ['tecnico', 'admin', 'superadmin'],
       },
       // Shared links for all authenticated users
       {
         href: '/dashboard/mi-cuenta',
         icon: Users,
         label: 'Mi Cuenta',
-        allowedRoles: ['socio', 'técnico', 'admin', 'superadmin'],
+        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
       },
       {
         href: '/dashboard/security',
         icon: Shield,
         label: 'Security',
-        allowedRoles: ['socio', 'técnico', 'admin', 'superadmin'],
+        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
       },
     ];
 
