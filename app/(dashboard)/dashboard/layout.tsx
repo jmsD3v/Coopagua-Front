@@ -42,20 +42,20 @@ export default function DashboardLayout({
         href: '/dashboard/gestion-tecnica',
         icon: Wrench,
         label: 'Gestión Técnica',
-        allowedRoles: ['tecnico', 'admin', 'superadmin'],
+        allowedRoles: ['técnico', 'admin', 'superadmin'],
       },
       // Shared links for all authenticated users
       {
         href: '/dashboard/mi-cuenta',
         icon: Users,
         label: 'Mi Cuenta',
-        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
+        allowedRoles: ['socio', 'técnico', 'admin', 'superadmin'],
       },
       {
         href: '/dashboard/security',
         icon: Shield,
         label: 'Security',
-        allowedRoles: ['socio', 'tecnico', 'admin', 'superadmin'],
+        allowedRoles: ['socio', 'técnico', 'admin', 'superadmin'],
       },
     ];
 

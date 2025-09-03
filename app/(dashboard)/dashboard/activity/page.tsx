@@ -81,7 +81,6 @@ export default async function ActivityPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">
                         {formattedAction}
-                        {log.ipAddress && ` desde la IP ${log.ipAddress}`}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {getRelativeTime(new Date(log.timestamp))}
