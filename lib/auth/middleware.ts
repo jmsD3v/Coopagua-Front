@@ -45,3 +45,34 @@ export function withUser<T>(action: ActionWithUserFunction<T>) {
     return action(formData, user);
   };
 }
+
+// A wrapper for Next.js API routes to protect them based on user roles.
+type SessionUser = {
+  id: number;
+  role: 'socio' | 'admin' | 'tecnico' | 'superadmin';
+  status: 'activo' | 'moroso' | 'suspendido';
+};
+
+type ApiHandler<T> = (
+  req: Request,
+  context: T,
+  sessionUser: SessionUser
+) => Promise<Response>;
+
+export function withRoleProtection<T extends { params?: any }>(
+  handler: ApiHandler<T>,
+  allowedRoles: User['role'][]
+) {
+  return async (req: Request, context: T) => {
+    const sessionUser = await getAuthenticatedUser();
+
+    if (!sessionUser || !allowedRoles.includes(sessionUser.role)) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return handler(req, context, sessionUser);
+  };
+}

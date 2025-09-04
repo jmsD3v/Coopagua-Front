@@ -1,81 +1,62 @@
 import { NextResponse } from 'next/server';
 import {
-  getAuthenticatedUser,
   getUserById,
   updateUser,
   deleteUser,
 } from '@/lib/db/queries';
 import { User } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth/session';
+import { withRoleProtection, type SessionUser } from '@/lib/auth/middleware';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// --- GET Handler ---
+const getHandler = async (
+  req: Request,
+  context: { params: { id: string } },
+  sessionUser: SessionUser
+) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
-
     const user = await getUserById(id);
-
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     return NextResponse.json(user);
   } catch (error) {
-    console.error(`Failed to fetch user ${params.id}:`, error);
+    console.error(`Failed to fetch user ${context.params.id}:`, error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
-}
+};
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// --- PATCH Handler ---
+const patchHandler = async (
+  req: Request,
+  context: { params: { id: string } },
+  sessionUser: SessionUser
+) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = await req.json();
     let { password, ...otherData } = body;
 
-    // Only allow certain fields to be updated
+    // This logic needs to be updated to match the comprehensive form.
+    // For now, keeping it simple as per the original file state.
     const allowedFields = [
-      'email',
-      'name',
-      'membershipNumber',
-      'role',
-      'status',
-      'phone',
-      'tariffCategory',
+      'email', 'name', 'membershipNumber', 'role', 'status', 'phone', 'tariffCategory',
     ];
     const sanitizedData = Object.fromEntries(
       Object.entries(otherData).filter(([key]) => allowedFields.includes(key))
     );
 
-    // If password is being updated, hash it
     if (password) {
       sanitizedData.passwordHash = await hashPassword(password);
     }
@@ -85,7 +66,6 @@ export async function PATCH(
     if (!updatedUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     const { passwordHash: _, ...userToReturn } = updatedUser;
     return NextResponse.json(userToReturn);
   } catch (error: any) {
@@ -95,51 +75,48 @@ export async function PATCH(
         { status: 409 }
       );
     }
-    console.error(`Failed to update user ${params.id}:`, error);
+    console.error(`Failed to update user ${context.params.id}:`, error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
-}
+};
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// --- DELETE Handler ---
+const deleteHandler = async (
+  req: Request,
+  context: { params: { id: string } },
+  sessionUser: SessionUser
+) => {
   try {
-    const currentUser: User | null = await getAuthenticatedUser();
-
-    // Protect the route
-    if (!currentUser || !['admin', 'superadmin'].includes(currentUser.role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const id = parseInt(params.id, 10);
+    const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
-
-    // Prevent users from deleting themselves
-    if (currentUser.id === id) {
+    if (sessionUser.id === id) {
       return NextResponse.json(
         { error: 'You cannot delete yourself' },
         { status: 400 }
       );
     }
-
     const deletedUser = await deleteUser(id);
-
     if (!deletedUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
-    return new NextResponse(null, { status: 204 }); // No Content
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error(`Failed to delete user ${params.id}:`, error);
+    console.error(`Failed to delete user ${context.params.id}:`, error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
-}
+};
+
+// --- EXPORT PROTECTED ROUTES ---
+const allowedRoles: User['role'][] = ['admin', 'superadmin'];
+
+export const GET = withRoleProtection(getHandler, allowedRoles);
+export const PATCH = withRoleProtection(patchHandler, allowedRoles);
+export const DELETE = withRoleProtection(deleteHandler, allowedRoles);
